@@ -26,7 +26,7 @@ class MenuController extends Controller
             'harga' => 'required|numeric|min:1000',
             'kategori' => 'required|in:makanan,minuman,dessert',
             'deskripsi' => 'required',
-            'gambar' => 'required'
+            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
         ], [
             'kodemenu.required' => 'Kode menu wajib diisi',
             'kodemenu.unique' => 'Kode menu sudah digunakan',
