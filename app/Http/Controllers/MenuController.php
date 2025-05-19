@@ -14,7 +14,7 @@ class MenuController extends Controller
     public function index()
     {
         $menu = menu::all();
-        return view('menu',compact('menu'));
+        return view('dashboard.owner.menu',compact('menu'));
     }
 
     public function store(Request $request)
@@ -26,7 +26,7 @@ class MenuController extends Controller
             'harga' => 'required|numeric|min:1000',
             'kategori' => 'required|in:makanan,minuman,dessert',
             'deskripsi' => 'required',
-            'gambar' => 'image|mimes:jpeg,png,jpg,gif|max:2048'
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ], [
             'kodemenu.required' => 'Kode menu wajib diisi',
             'kodemenu.unique' => 'Kode menu sudah digunakan',
@@ -60,7 +60,7 @@ class MenuController extends Controller
     {
         $menu = menu::all();
         $menuShow = menu::findOrfail($id);
-        return view('menu',compact('menu','menuShow'));
+        return view('dashboard.owner.menu',compact('menu','menuShow'));
     }
 
     /**
@@ -93,7 +93,7 @@ class MenuController extends Controller
             'harga' => 'required|numeric|min:1000',
             'kategori' => 'required|in:makanan,minuman,dessert',
             'deskripsi' => 'required',
-            'gambar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ], $messages);
 
         try {

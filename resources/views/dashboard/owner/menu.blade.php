@@ -112,7 +112,7 @@
                         </svg>
                     </button>
                 </div>
-                <form action="{{ isset($menuShow)?route('menu.update',['id'=>$menuShow->id]):route('menu.simpan')}}" method="post" class="p-6 enctype="multipart/form-data">
+                <form action="{{ isset($menuShow)?route('menu.update',['id'=>$menuShow->id]):route('menu.simpan')}}" method="post" class="p-6" enctype="multipart/form-data">
                     @csrf
                     @if (isset($menuShow))
                         @method('put')                        
