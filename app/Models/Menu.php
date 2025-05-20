@@ -13,6 +13,6 @@ class Menu extends Model
     protected $fillable = ['kodemenu','namamenu','harga','kategori','deskripsi','gambar'];
     public function charts()
     {
-        return $this->hasMany(Chart::class, 'kodemenu', 'kodemenu');
+        return $this->hasMany(Cart::class, 'kodemenu', 'kodemenu');
     }
 }

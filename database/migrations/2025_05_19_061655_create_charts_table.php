@@ -14,10 +14,10 @@ return new class extends Migration
         Schema::create('charts', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->string('kode_menu');
+            $table->string('kodemenu');
             $table->integer('quantity')->default(1);
             $table->timestamps();
-            $table->foreign('kode_menu')->references('kode_menu')->on('menu')->onDelete('cascade');
+            $table->foreign('kodemenu')->references('kodemenu')->on('menu')->onDelete('cascade');
         });
     }
 

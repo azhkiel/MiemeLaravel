@@ -2,23 +2,18 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Chart extends Model
+class OrderDetail extends Model
 {
-    use HasFactory;
-
+    protected $table = 'order_details';
+    
     protected $fillable = [
-        'user_id',
+        'order_id',
         'kodemenu',
-        'quantity'
+        'quantity',
+        'price'
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 
     public function menu()
     {
