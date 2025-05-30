@@ -2,26 +2,24 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Chart extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
         'user_id',
-        'kodemenu',
+        'kode_menu',
         'quantity'
     ];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
 
-    public function menu()
+    public function menu(): BelongsTo
     {
-        return $this->belongsTo(Menu::class, 'kodemenu', 'kodemenu');
+        return $this->belongsTo(Menu::class, 'kode_menu', 'kode_menu');
     }
 }

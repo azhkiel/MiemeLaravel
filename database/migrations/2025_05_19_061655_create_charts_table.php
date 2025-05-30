@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('kode_menu');
             $table->integer('quantity')->default(1);
             $table->timestamps();
-            $table->foreign('kode_menu')->references('kode_menu')->on('menu')->onDelete('cascade');
+            $table->foreign('kode_menu')->references('kode_menu')->on('menus')->onDelete('cascade');
         });
     }
 

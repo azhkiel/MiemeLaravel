@@ -20,4 +20,16 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function charts()
+    {
+        return $this->hasMany(Chart::class);
+    }
+
+    /**
+     * Relasi ke model Order
+     */
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }

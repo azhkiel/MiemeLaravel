@@ -14,11 +14,12 @@ class AuthController extends Controller
 
     public function register(Request $request) {
         $request->validate([
-            'username' => 'required|string|unique:users',
+            'username' => 'required|string|min:3|max:50|unique:users,username',
             'fullname' => 'required|string|max:255',
             'phone' => 'nullable|string|max:20',
-            'password' => 'required|min:6|confirmed',
+            'password' => 'required|string|min:6|confirmed',
         ]);
+
 
         User::create([
             'username' => $request->username,
@@ -37,19 +38,16 @@ class AuthController extends Controller
 
     public function login(Request $request) {
         $credentials = $request->only('username', 'password');
-        if (Auth::attempt($credentials)) {
+        $remember = $request->filled('remember'); // cek apakah checkbox "remember" dicentang
+
+        if (Auth::attempt($credentials, $remember)) {
             $user = Auth::user();
-            if ($user->role === 'admin') {
-                return redirect()->route('admin.dashboard');
-            } elseif ($user->role === 'owner') {
-                return redirect()->route('owner.dashboard');
-            } else {
-                return redirect()->route('customer.dashboard');
-            }
+            return redirect()->intended(route($user->role . '.dashboard'));
         }
 
-        return back()->with('error', 'Email atau password salah.');
+        return back()->with('error', 'Username atau password salah.');
     }
+
 
     public function logout() {
         Auth::logout();

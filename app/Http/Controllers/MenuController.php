@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 use App\Models\Menu;
+use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\delete;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
 
 class MenuController extends Controller
@@ -21,18 +23,18 @@ class MenuController extends Controller
     {
         // Validasi dengan pesan custom
         $validated = $request->validate([
-            'kodemenu' => 'required|unique:menu,kodemenu',
-            'namamenu' => 'required|max:255|regex:/^[\pL\s]+$/u',
+            'kode_menu' => 'required|unique:menus,kode_menu',
+            'nama_menu' => 'required|max:255|regex:/^[\pL\s]+$/u',
             'harga' => 'required|numeric|min:1000',
             'kategori' => 'required|in:makanan,minuman,dessert',
             'deskripsi' => 'required',
             'gambar' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ], [
-            'kodemenu.required' => 'Kode menu wajib diisi',
-            'kodemenu.unique' => 'Kode menu sudah digunakan',
-            'namamenu.required' => 'Nama menu wajib diisi',
-            'namamenu.max' => 'Nama menu maksimal 255 karakter',
-            'namamenu.regex' => 'Nama menu hanya boleh mengandung huruf dan spasi',
+            'kode_menu.required' => 'Kode menu wajib diisi',
+            'kode_menu.unique' => 'Kode menu sudah digunakan',
+            'nama_menu.required' => 'Nama menu wajib diisi',
+            'nama_menu.max' => 'Nama menu maksimal 255 karakter',
+            'nama_menu.regex' => 'Nama menu hanya boleh mengandung huruf dan spasi',
             'harga.required' => 'Harga wajib diisi',
             'harga.numeric' => 'Harga harus berupa angka',
             'harga.min' => 'Harga minimal Rp 1.000',
@@ -46,7 +48,10 @@ class MenuController extends Controller
 
         try {
             if ($request->hasFile('gambar')) {
-                $path = $request->file('gambar')->store('menu-images', 'public');
+                $ext = $request->file('gambar')->getClientOriginalExtension();
+                $slugName = Str::slug($request->nama_menu);
+                $filename = "{$request->kode_menu}_{$slugName}_{$request->kategori}_{$request->harga}.{$ext}";
+                $path = $request->file('gambar')->storeAs('menu-images', $filename, 'public');
                 $validated['gambar'] = $path;
             }
             Menu::create($validated);
@@ -56,25 +61,25 @@ class MenuController extends Controller
         }
     }
 
-    public function edit(string $id)
+    public function edit(string $kodeMenu)
     {
         $menu = menu::all();
-        $menuShow = menu::findOrfail($id);
+        $menuShow = Menu::where('kode_menu', $kodeMenu)->firstOrFail();
         return view('dashboard.owner.menu',compact('menu','menuShow'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, string $kodeMenu)
     {
         // Custom validation messages
         $messages = [
-            'kodemenu.required' => 'Kode menu wajib diisi',
-            'kodemenu.unique' => 'Kode menu sudah digunakan',
-            'namamenu.required' => 'Nama menu wajib diisi',
-            'namamenu.max' => 'Nama menu maksimal 255 karakter',
-            'namamenu.regex' => 'Nama menu hanya boleh mengandung huruf dan spasi',
+            'kode_menu.required' => 'Kode menu wajib diisi',
+            'kode_menu.unique' => 'Kode menu sudah digunakan',
+            'nama_menu.required' => 'Nama menu wajib diisi',
+            'nama_menu.max' => 'Nama menu maksimal 255 karakter',
+            'nama_menu.regex' => 'Nama menu hanya boleh mengandung huruf dan spasi',
             'harga.required' => 'Harga wajib diisi',
             'harga.numeric' => 'Harga harus berupa angka',
             'harga.min' => 'Harga minimal Rp 1.000',
@@ -88,8 +93,8 @@ class MenuController extends Controller
 
         // Validation rules
         $validated = $request->validate([
-            'kodemenu' => 'required|unique:menu,kodemenu,'.$id,
-            'namamenu' => 'required|max:255|regex:/^[\pL\s]+$/u',
+            'kode_menu' => 'required|unique:menus,kode_menu,'.$kodeMenu,
+            'nama_menu' => 'required|max:255|regex:/^[\pL\s]+$/u',
             'harga' => 'required|numeric|min:1000',
             'kategori' => 'required|in:makanan,minuman,dessert',
             'deskripsi' => 'required',
@@ -97,7 +102,7 @@ class MenuController extends Controller
         ], $messages);
 
         try {
-            $menuShow = Menu::findOrFail($id);
+            $menuShow = Menu::where('kode_menu', $kodeMenu)->firstOrFail();
         
         if ($request->hasFile('gambar')) {
             // Hapus gambar lama jika ada
@@ -105,8 +110,12 @@ class MenuController extends Controller
                 Storage::disk('public')->delete($menuShow->gambar);
             }
             
-            $path = $request->file('gambar')->store('menu-images', 'public');
+            $ext = $request->file('gambar')->getClientOriginalExtension();
+            $slugName = Str::slug($request->nama_menu);
+            $filename = "{$request->kode_menu}_{$slugName}_{$request->kategori}_{$request->harga}.{$ext}";
+            $path = $request->file('gambar')->storeAs('menu-images', $filename, 'public');
             $validated['gambar'] = $path;
+
         }
         
         $menuShow->update($validated);
@@ -119,9 +128,9 @@ class MenuController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(string $kodeMenu)
     {
-        $menuShow = Menu::findOrFail($id);
+        $menuShow = Menu::where('kode_menu', $kodeMenu)->firstOrFail();
         
         // Hapus gambar jika ada
         if ($menuShow->gambar) {

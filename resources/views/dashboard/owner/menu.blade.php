@@ -1,4 +1,4 @@
-@extends('layout.app')
+@extends('layout.own')
 
 @section('title', 'Menu')
 <!-- Letakkan notifikasi di bagian atas konten -->
@@ -118,26 +118,26 @@
                         @method('put')                        
                     @endif
                     <div class="mb-4">
-                        <label for="kodemenu" class="block text-sm font-medium text-gray-700 mb-1">Kode Menu</label>
+                        <label for="kode_menu" class="block text-sm font-medium text-gray-700 mb-1">Kode Menu</label>
                         <input 
                             type="text" 
-                            id="kodemenu" 
-                            name="kodemenu" 
+                            id="kode_menu" 
+                            name="kode_menu" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
                             placeholder="MKN001"
-                            value="{{ old('kodemenu',$menuShow->kodemenu??'') }}"
+                            value="{{ old('kode_menu',$menuShow->kode_menu??'') }}"
                             required
                         >
                     </div>
                     
                     <div class="mb-4">
-                        <label for="namamenu" class="block text-sm font-medium text-gray-700 mb-1">Nama Menu</label>
+                        <label for="nama_menu" class="block text-sm font-medium text-gray-700 mb-1">Nama Menu</label>
                         <input 
                             type="text" 
-                            id="namamenu" 
-                            name="namamenu" 
+                            id="nama_menu" 
+                            name="nama_menu" 
                             class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                            value="{{ old('namamenu',$menuShow->namamenu??'') }}"
+                            value="{{ old('nama_menu',$menuShow->nama_menu??'') }}"
                             placeholder="Nama menu"
                             required
                         >
@@ -243,8 +243,8 @@
                     <tbody class="bg-white divide-y divide-gray-200">
                         @foreach ($menu as $item)
                             <tr class="hover:bg-gray-50 transition-colors">
-                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->kodemenu }}</td>
-                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->namamenu }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $item->kode_menu }}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $item->nama_menu }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Rp {{ number_format($item->harga, 0, ',', '.') }}</td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
@@ -262,13 +262,13 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                     <div class="flex space-x-2">
-                                        <a href="{{ route('menu.edit',['id'=>$item->id]) }}" class="text-indigo-600 hover:text-indigo-900 rounded-md px-3 py-1 flex transition-colors duration-200">
+                                        <a href="{{ route('menu.edit',['kodeMenu'=>$item->kode_menu]) }}" class="text-indigo-600 hover:text-indigo-900 rounded-md px-3 py-1 flex transition-colors duration-200">
                                             <!-- Edit Icon -->
                                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                                                 <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                             </svg>Edit
                                         </a>
-                                        <form action="{{ route('menu.hapus', ['id' => $item->id]) }}" method="POST" class="d-inline delete-form">
+                                        <form action="{{ route('menu.hapus', ['kodeMenu'=>$item->kode_menu]) }}" method="POST" class="d-inline delete-form">
                                             @csrf
                                             @method('DELETE')
                                             <button type="button" onclick="confirmDelete(this)" class="btn btn-sm bg-red-600 hover:bg-red-700 text-white rounded-md px-3 py-1 flex items-center transition-colors duration-200">

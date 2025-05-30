@@ -69,7 +69,7 @@
             <div id="mega-menu" 
                  class="items-center justify-between w-full md:flex md:w-auto md:order-1"
                  :class="{ 'hidden': !mobileMenuOpen }"
-                 x-show="mobileMenuOpen || window.innerWidth >= 768">
+                 x-show="mobileMenuOpen || window.innerWidth >= 768" x-data="scrollNavigator">
                 <ul class="flex flex-col mt-4 font-medium md:flex-row md:mt-0 md:space-x-6 rtl:space-x-reverse">
                     <li>
                         <a href="{{ route('index') }}" 
@@ -90,9 +90,9 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('index') }}"
+                        <a href="#about"
                            class="nav-link block py-2 px-3 text-gray-700 hover:text-blue-600 md:p-0 relative group"
-                           :class="{ 'text-blue-600': request()->routeIs('about') }">
+                           :class="{ 'text-blue-600': request()->routeIs('about') }" @click.prevent="scrollTo('about')">
                             <span>Tentang Kami</span>
                             <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300"
                                   :class="{ 'scale-x-100': request()->routeIs('about') }"></span>
