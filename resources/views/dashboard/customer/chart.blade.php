@@ -84,52 +84,74 @@
         </div>
         
         <!-- Order Summary -->
-        @if($items->isNotEmpty())
-        <div class="lg:w-1/3">
-            <div class="bg-white p-6 rounded-2xl shadow-sm sticky top-6 transition-all duration-300 hover:shadow-md animate-fade-in-up delay-100">
-                <h2 class="text-xl font-bold mb-6 text-gray-800">Ringkasan Pesanan</h2>
-                <div class="space-y-4">
-                    <div class="flex justify-between">
-                        <p class="text-gray-600">Subtotal (<span id="summary-quantity">{{ $totalItems }}</span> item)</p>
-                        <p class="font-medium">Rp <span id="summary-subtotal">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
-                    </div>
-                    
-                    <div class="border-t border-gray-200 my-2"></div>
-                    
-                    <div class="flex justify-between font-bold text-lg">
-                        <p class="text-gray-800">Total</p>
-                        <p class="text-blue-600">Rp <span id="summary-total">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
-                    </div>
+@if($items->isNotEmpty())
+    <div class="lg:w-1/3">
+        <div class="bg-white p-6 rounded-2xl shadow-sm sticky top-6 transition-all duration-300 hover:shadow-md animate-fade-in-up delay-100">
+            <h2 class="text-xl font-bold mb-6 text-gray-800">Ringkasan Pesanan</h2>
+            <div class="space-y-4">
+                <div class="flex justify-between">
+                    <p class="text-gray-600">Subtotal (<span id="summary-quantity">{{ $totalItems }}</span> item)</p>
+                    <p class="font-medium">Rp <span id="summary-subtotal">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
                 </div>
                 
-                <form method="POST" action="{{ route('customer.chart.checkout') }}">
-                    @csrf
-                    <button type="submit" 
-                            class="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center">
-                        <i class="fas fa-credit-card mr-2"></i>
-                        Checkout Sekarang
-                    </button>
-                </form>
+                <div class="border-t border-gray-200 my-2"></div>
                 
-                <div class="mt-4 text-center">
-                    <p class="text-sm text-gray-500">Dengan melanjutkan, Anda menyetujui Syarat & Ketentuan kami</p>
+                <div class="flex justify-between font-bold text-lg">
+                    <p class="text-gray-800">Total</p>
+                    <p class="text-blue-600">Rp <span id="summary-total">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
                 </div>
             </div>
             
-            <div class="mt-6 bg-white p-6 rounded-2xl shadow-sm animate-fade-in-up delay-150">
-                <h3 class="font-semibold text-gray-800 mb-3">Butuh Bantuan?</h3>
-                <div class="flex items-center text-blue-600 hover:text-blue-800 transition-colors cursor-pointer">
-                    <i class="fas fa-headset mr-2"></i>
-                    <span>Hubungi Customer Service</span>
+            <form method="POST" action="{{ route('customer.chart.checkout') }}">
+                @csrf
+                
+                <div class="mt-4">
+                    <label for="type_pesanan" class="block text-gray-600">Pilih Tipe Pesanan:</label>
+                    <select name="type_pesanan" id="type_pesanan" class="w-full p-2 border border-gray-300 rounded-md">
+                        <option value="takeaway" selected>Takeaway</option>
+                        <option value="dine_in">Dine In</option>
+                    </select>
                 </div>
+
+                <div id="meja_select" class="mt-4 hidden">
+                    <label for="meja_id" class="block text-gray-600">Pilih Meja:</label>
+                    <select name="meja_id" id="meja_id" class="w-full p-2 border border-gray-300 rounded-md">
+                        @foreach(\App\Models\Meja::where('ketersediaan', 'available')->get() as $meja)
+                            <option value="{{ $meja->id }}">{{ $meja->nomor_meja }} - Kapasitas: {{ $meja->kapasitas }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <button type="submit" 
+                        class="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center">
+                    <i class="fas fa-credit-card mr-2"></i>
+                    Checkout Sekarang
+                </button>
+            </form>
+            
+            <div class="mt-4 text-center">
+                <p class="text-sm text-gray-500">Dengan melanjutkan, Anda menyetujui Syarat & Ketentuan kami</p>
             </div>
         </div>
-        @endif
+    </div>
+@endif
+
     </div>
 </div>
 
 @push('scripts')
 <script>
+    document.getElementById('type_pesanan').addEventListener('change', function() {
+    var typePesanan = this.value;
+    var mejaSelect = document.getElementById('meja_select');
+    
+    if (typePesanan === 'dine_in') {
+        mejaSelect.style.display = 'block';
+    } else {
+        mejaSelect.style.display = 'none';
+    }
+});
+
     function updateQuantity(action, id) {
         // Add loading animation
         const quantityElement = document.getElementById(`quantity-${id}`);

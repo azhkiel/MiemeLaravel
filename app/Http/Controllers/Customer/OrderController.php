@@ -10,11 +10,13 @@ class OrderController extends Controller
 {
     public function index()
     {
+        // Ambil pesanan beserta detailnya (termasuk menu), dan juga informasi type_pesanan dan nomor meja
         $orders = Auth::user()->orders()
-            ->with('orderDetails.menu')
+            ->with(['orderDetails.menu', 'meja'])  // Memuat relasi 'orderDetails' dan 'meja'
             ->latest()
             ->get();
 
+        // Ambil jumlah item di keranjang belanja
         $cartCount = Auth::user()->charts()->sum('quantity');
 
         return view('dashboard.customer.orders', [
@@ -22,6 +24,7 @@ class OrderController extends Controller
             'cartCount' => $cartCount
         ]);
     }
+
 
     public function updateStatus(Request $request, $orderId)
     {

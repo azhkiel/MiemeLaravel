@@ -11,7 +11,9 @@ class Order extends Model
     protected $fillable = [
         'user_id',
         'total_price',
-        'status'
+        'status',
+        'type_pesanan', 
+        'meja_id'
     ];
 
     public function user(): BelongsTo
@@ -22,5 +24,9 @@ class Order extends Model
     public function orderDetails(): HasMany
     {
         return $this->hasMany(OrderDetail::class);
+    }
+    public function meja()
+    {
+        return $this->belongsTo(Meja::class, 'meja_id');
     }
 }
