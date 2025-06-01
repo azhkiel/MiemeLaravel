@@ -34,14 +34,15 @@
     <!-- Formulir Pembayaran -->
     <form method="POST" action="{{ route('customer.checkout.store') }}">
         @csrf
+        <!-- Menyertakan order_type sebagai hidden field -->
         <input type="hidden" name="order_type" value="{{ $order_type }}">
 
-        <!-- Kirimkan meja_id hanya jika order_type adalah dine_in -->
-        @if($order_type === 'dine_in')
+        <!-- Jika tipe pesanan adalah dine_in, kirim meja_id -->
+        @if($order_type == 'dine_in')
             <input type="hidden" name="meja_id" value="{{ $meja_id }}">
         @endif
 
-        <!-- Tombol Konfirmasi -->
+        <!-- Tombol Konfirmasi dan Pembayaran -->
         <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
             Konfirmasi & Bayar
         </button>

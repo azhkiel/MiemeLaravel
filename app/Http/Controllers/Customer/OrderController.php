@@ -12,6 +12,7 @@ class OrderController extends Controller
     // Step 4: Simpan order
     public function checkout(Request $request)
     {
+        // dd($request->all()); 
         $request->validate([
             'order_type' => 'required|in:dine_in,takeaway',
             'meja_id' => 'required_if:order_type,dine_in|nullable|exists:mejas,id'

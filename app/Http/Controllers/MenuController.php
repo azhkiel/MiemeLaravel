@@ -10,9 +10,6 @@ use Illuminate\Support\Facades\Storage;
 
 class MenuController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $menu = menu::all();
@@ -124,10 +121,6 @@ class MenuController extends Controller
             return back()->withInput()->with('error', 'Gagal memperbarui menu: ' . $e->getMessage());
         }
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $kodeMenu)
     {
         $menuShow = Menu::where('kode_menu', $kodeMenu)->firstOrFail();
