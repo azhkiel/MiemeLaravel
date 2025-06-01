@@ -102,14 +102,12 @@
                     </div>
                 </div>
                 
-                <form method="POST" action="{{ route('customer.chart.checkout') }}">
-                    @csrf
-                    <button type="submit" 
-                            class="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center">
-                        <i class="fas fa-credit-card mr-2"></i>
-                        Checkout Sekarang
-                    </button>
-                </form>
+                {{-- Ubah tombol checkout ke halaman pilih tipe pesanan --}}
+                <a href="{{ route('customer.checkout.type') }}"
+                    class=" w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center text-center">
+                    <i class="fas fa-credit-card mr-2"></i>
+                    Checkout Sekarang
+                </a>
                 
                 <div class="mt-4 text-center">
                     <p class="text-sm text-gray-500">Dengan melanjutkan, Anda menyetujui Syarat & Ketentuan kami</p>

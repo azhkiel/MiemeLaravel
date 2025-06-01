@@ -31,7 +31,7 @@ class UserSeeder extends Seeder
         // Seeder untuk Staff
         User::create([
             'username' => 'sofi',
-            'fullname' => 'Staff User',
+            'fullname' => 'Sofi Eka Putri',
             'phone' => '085123456789',
             'role' => 'staff',
             'password' => Hash::make('123456'),
@@ -39,7 +39,7 @@ class UserSeeder extends Seeder
 
         User::create([
             'username' => 'putri',
-            'fullname' => 'Staff User',
+            'fullname' => 'Putri Setia Alina',
             'phone' => '085123456789',
             'role' => 'staff',
             'password' => Hash::make('123456'),

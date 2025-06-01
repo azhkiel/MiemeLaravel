@@ -4,7 +4,9 @@
 
 @section('content')
 <div class="container mx-auto p-6">
-    <h2 class="text-3xl font-bold mb-4">Staff Attendance</h2>
+    <h2 class="text-3xl font-bold mb-1">Staff Attendance</h2>
+    <p class="text-gray-600 mb-4">Welcome, <span class="font-semibold text-blue-700">{{ Auth::user()->fullname }}</span></p>
+
 
     @if(session('success'))
         <script>
@@ -31,7 +33,6 @@
             });
         </script>
     @endif
-
     <div class="card bg-white shadow-lg rounded-lg overflow-hidden">
         <div class="card-header bg-blue-600 text-white p-4 text-lg font-semibold">
             Today's Attendance
@@ -46,20 +47,64 @@
                         <span class="ml-2 text-sm text-gray-600">(Shift: {{ $attendance->shift }})</span>
                     @endif
                 </p>
+
                 @if($attendance->attendance_time)
-                    <p class="text-sm text-gray-500 mb-4">
-                        Recorded at: 
+                    <p class="text-sm text-gray-500">
+                        Check-in at: 
                         {{ \Carbon\Carbon::parse($attendance->attendance_time)->timezone('Asia/Jakarta')->format('H:i') }} WIB
                     </p>
                 @endif
-                <p class="text-gray-500">You have already submitted attendance for today.</p>
+
+                @if($attendance->image)
+                    <div class="mt-2">
+                        <img src="{{ Storage::url($attendance->image) }}" alt="Check-in Image" class="h-32 rounded shadow-md">
+                        <p class="text-xs text-gray-400 mt-1">Check-in image</p>
+                    </div>
+                @endif
+
+                @if($attendance->checkout_time)
+                    <p class="mt-4 text-sm text-green-700">
+                        Checked out at: {{ \Carbon\Carbon::parse($attendance->checkout_time)->timezone('Asia/Jakarta')->format('H:i') }} WIB
+                    </p>
+                    <p class="text-gray-500">You have completed your attendance today.</p>
+
+                    @if($attendance->checkout_image)
+                        <div class="mt-2">
+                            <img src="{{ Storage::url($attendance->checkout_image) }}" alt="Checkout Image" class="h-32 rounded shadow-md">
+                            <p class="text-xs text-gray-400 mt-1">Checkout image</p>
+                        </div>
+                    @endif
+                @else
+                    <hr class="my-4">
+                    <h4 class="text-lg font-semibold text-gray-700 mb-2">Absen Pulang</h4>
+                    <form action="{{ route('staff.attendance.checkout') }}" method="POST" enctype="multipart/form-data">
+                        @csrf
+                        <div class="mb-4">
+                            <label for="image" class="block text-sm font-medium text-gray-700">
+                                Upload Checkout Image <span class="text-red-500">*</span>
+                            </label>
+                            <input type="file" name="image" id="image" required
+                                class="mt-2 block w-full px-4 py-2 border rounded-md bg-gray-50"
+                                accept="image/*">
+                            @error('image')
+                                <span class="text-red-500 text-sm">{{ $message }}</span>
+                            @enderror
+                        </div>
+
+                        <button type="submit"
+                            class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-700">
+                            Submit Checkout
+                        </button>
+                    </form>
+                @endif
             @else
+                {{-- Form Absen Masuk --}}
                 <form action="{{ route('staff.attendance.store') }}" method="POST" enctype="multipart/form-data">
                     @csrf
-
                     <div class="mb-4">
                         <label for="shift" class="block text-sm font-medium text-gray-700">Select Shift:</label>
-                        <select name="shift" id="shift" required class="mt-2 block w-full px-4 py-2 border rounded-md bg-gray-50">
+                        <select name="shift" id="shift" required
+                            class="mt-2 block w-full px-4 py-2 border rounded-md bg-gray-50">
                             <option value="">-- Choose Shift --</option>
                             <option value="Pagi" {{ old('shift') == 'Pagi' ? 'selected' : '' }}>Pagi (Before 07:00)</option>
                             <option value="Siang" {{ old('shift') == 'Siang' ? 'selected' : '' }}>Siang (Before 14:00)</option>
@@ -71,14 +116,19 @@
                     </div>
 
                     <div class="mb-4">
-                        <label for="image" class="block text-sm font-medium text-gray-700">Upload Attendance Image <span class="text-red-500">*</span></label>
-                        <input type="file" name="image" id="image" required class="mt-2 block w-full px-4 py-2 border rounded-md bg-gray-50" accept="image/*">
+                        <label for="image" class="block text-sm font-medium text-gray-700">
+                            Upload Attendance Image <span class="text-red-500">*</span>
+                        </label>
+                        <input type="file" name="image" id="image" required
+                            class="mt-2 block w-full px-4 py-2 border rounded-md bg-gray-50"
+                            accept="image/*">
                         @error('image')
                             <span class="text-red-500 text-sm">{{ $message }}</span>
                         @enderror
                     </div>
 
-                    <button type="submit" class="mt-3 bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none">
+                    <button type="submit"
+                        class="bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 focus:outline-none">
                         Submit Attendance
                     </button>
                 </form>
@@ -103,6 +153,53 @@
         </div>
     </div>
 </div>
+
+{{-- DAFTAR MEJA RESERVED/NOT AVAILABLE --}}
+<section class="mt-10">
+    <h3 class="text-2xl font-semibold mb-4">Daftar Meja Tidak Tersedia</h3>
+    <div class="bg-white rounded-lg shadow p-4">
+        @if($mejas->whereIn('ketersediaan', ['reserved', 'not available'])->count())
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200 text-sm">
+                    <thead>
+                        <tr class="bg-gray-50">
+                            <th class="px-4 py-2 text-left font-semibold">No.</th>
+                            <th class="px-4 py-2 text-left font-semibold">Nomor Meja</th>
+                            <th class="px-4 py-2 text-left font-semibold">Kapasitas</th>
+                            <th class="px-4 py-2 text-left font-semibold">Status</th>
+                            <th class="px-4 py-2 text-left font-semibold">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($mejas->whereIn('ketersediaan', ['reserved', 'not available']) as $meja)
+                        <tr class="hover:bg-gray-50 transition">
+                            <td class="px-4 py-2">{{ $loop->iteration }}</td>
+                            <td class="px-4 py-2 font-bold text-blue-700">{{ $meja->nomor_meja }}</td>
+                            <td class="px-4 py-2">{{ $meja->kapasitas }}</td>
+                            <td class="px-4 py-2">
+                                <span class="px-3 py-1 rounded-full
+                                    @if($meja->ketersediaan === 'reserved') bg-yellow-100 text-yellow-800 @else bg-red-100 text-red-800 @endif">
+                                    {{ ucfirst($meja->ketersediaan) }}
+                                </span>
+                            </td>
+                            <td class="px-4 py-2">
+                                <form method="POST" action="{{ route('staff.meja.makeAvailable', $meja->id) }}">
+                                    @csrf
+                                    <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded transition">
+                                        Set Available
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        @else
+            <p class="text-gray-500">Tidak ada meja dengan status reserved/not available.</p>
+        @endif
+    </div>
+</section>
 @endsection
 
 @push('styles')
@@ -140,25 +237,36 @@
                             'late'    => '#FBBF24',
                             default   => '#A5B4FC',
                         };
-                        $tooltip = "Status: $status";
+
+                        // Tooltip konten
+                        $tooltip = "Staff: {$entry->user->fullname}\\nStatus: $status";
                         if ($entry->shift) $tooltip .= "\\nShift: " . $entry->shift;
                         if ($entry->attendance_time) {
-                            $timeWIB = \Carbon\Carbon::parse($entry->attendance_time)->timezone('Asia/Jakarta')->format('H:i');
-                            $tooltip .= "\\nTime: " . $timeWIB . " WIB";
+                            $tooltip .= "\\nMasuk: " . \Carbon\Carbon::parse($entry->attendance_time)->timezone('Asia/Jakarta')->format('H:i') . " WIB";
                         }
-                        if ($entry->image) $tooltip .= "\\nClick to view image";
+                        if ($entry->checkout_time) {
+                            $tooltip .= "\\nPulang: " . \Carbon\Carbon::parse($entry->checkout_time)->timezone('Asia/Jakarta')->format('H:i') . " WIB";
+                        }
+                        $tooltip .= "\\nKlik untuk lihat gambar";
+
+
+                        // Tentukan URL gambar yang diklik (checkout lebih prioritas jika ada)
+                        $imageUrl = $entry->checkout_image 
+                            ? Storage::url($entry->checkout_image) 
+                            : ($entry->image ? Storage::url($entry->image) : '#');
                     @endphp
                     {
                         title: '{{ $status }}',
                         start: '{{ $entry->attendance_date->format('Y-m-d') }}',
                         color: '{{ $color }}',
-                        url: '{{ $entry->image ? Storage::url($entry->image) : "#" }}',
+                        url: '{{ $imageUrl }}',
                         extendedProps: {
                             tooltip: `{!! nl2br(e($tooltip)) !!}`
                         }
                     },
                 @endforeach
             ],
+
             eventDidMount: function(info) {
                 const tooltip = document.createElement('div');
                 tooltip.className = 'tooltip bg-black text-white text-xs rounded px-2 py-1 absolute z-10 hidden';

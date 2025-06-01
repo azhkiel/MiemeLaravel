@@ -130,7 +130,7 @@
             <div id="videoContainer" class="hidden">
                 <iframe class="w-full h-full" src="https://www.youtube.com/embed/1sqxVH6T8lk?si=qw67F0CRSnFAkFFP" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
             </div>
-            <img src="{{ asset('images/video-thumbnail.jpg') }}" alt="Video Thumbnail" class="w-full h-full object-cover">
+            {{-- <img src="{{ asset('images/video-thumbnail.jpg') }}" alt="Video Thumbnail" class="w-full h-full object-cover"> --}}
         </div>
     </div>
 </section>

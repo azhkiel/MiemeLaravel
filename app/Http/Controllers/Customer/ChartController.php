@@ -1,12 +1,10 @@
 <?php
-
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Chart;
-use App\Models\Menu;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class ChartController extends Controller
 {
@@ -22,6 +20,32 @@ class ChartController extends Controller
             'items' => $items,
             'totalItems' => $totalItems,
             'subtotal' => $subtotal
+        ]);
+    }
+
+    public function addToCart(Request $request)
+    {
+        $request->validate([
+            'kode_menu' => 'required|exists:menus,kode_menu',
+            'quantity' => 'required|integer|min:1'
+        ]);
+
+        $chart = Chart::firstOrNew([
+            'user_id' => Auth::id(),
+            'kode_menu' => $request->kode_menu
+        ]);
+
+        $chart->quantity += $request->quantity;
+        $chart->save();
+
+        $menu = $chart->menu;
+        $totalItems = Auth::user()->charts()->sum('quantity');
+
+        return response()->json([
+            'success' => true,
+            'total_items' => $totalItems,
+            'menu_name' => $menu->nama_menu,
+            'quantity' => $request->quantity
         ]);
     }
 
@@ -62,70 +86,6 @@ class ChartController extends Controller
         ]);
     }
 
-    public function addToCart(Request $request)
-    {
-        $request->validate([
-            'kode_menu' => 'required|exists:menus,kode_menu',
-            'quantity' => 'required|integer|min:1'
-        ]);
-
-        $chart = Chart::firstOrNew([
-            'user_id' => Auth::id(),
-            'kode_menu' => $request->kode_menu
-        ]);
-
-        $chart->quantity += $request->quantity;
-        $chart->save();
-
-        $menu = Menu::find($request->kode_menu);
-        $totalItems = Auth::user()->charts()->sum('quantity');
-
-        return response()->json([
-            'success' => true,
-            'total_items' => $totalItems,
-            'menu_name' => $menu->nama_menu,
-            'quantity' => $request->quantity
-        ]);
-    }
-
-    public function getCartCount()
-    {
-        $totalItems = Auth::user()->charts()->sum('quantity');
-
-        return response()->json([
-            'success' => true,
-            'total_items' => $totalItems
-        ]);
-    }
-
-    public function checkout(Request $request)
-    {
-        $items = Auth::user()->charts()->with('menu')->get();
-
-        if ($items->isEmpty()) {
-            return redirect()->back()->with('error', 'Keranjang belanja kosong');
-        }
-
-        $subtotal = $items->sum(function ($item) {
-            return $item->quantity * $item->menu->harga;
-        });
-
-        $order = Auth::user()->orders()->create([
-            'total_price' => $subtotal
-        ]);
-
-        foreach ($items as $item) {
-            $order->orderDetails()->create([
-                'kode_menu' => $item->kode_menu,
-                'quantity' => $item->quantity,
-                'price' => $item->menu->harga
-            ]);
-        }
-
-        Auth::user()->charts()->delete();
-
-        return redirect()->route('customer.orders')->with('success', 'Pesanan berhasil dibuat');
-    }
     public function clear()
     {
         Auth::user()->charts()->delete();

@@ -10,7 +10,7 @@ class Attendance extends Model
     use HasFactory;
 
     // Definisikan nama tabel jika tidak mengikuti konvensi Laravel
-    protected $table = 'attendance';
+    protected $table = 'attendances';
 
     // Tentukan kolom yang dapat diisi
     protected $fillable = [
@@ -20,6 +20,10 @@ class Attendance extends Model
         'image',
         'shift',
         'attendance_time',
+        'checkout_time',
+        'checkout_image',
+        'duration',
+        'salary',
     ];
 
     // Menambahkan casting untuk tanggal

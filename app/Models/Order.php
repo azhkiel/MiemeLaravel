@@ -23,4 +23,10 @@ class Order extends Model
     {
         return $this->hasMany(OrderDetail::class);
     }
+    
+    public function meja()
+    {
+        return $this->belongsTo(Meja::class, 'meja_id');
+    }
+
 }
