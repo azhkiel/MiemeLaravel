@@ -24,17 +24,4 @@ class OrderController extends Controller
             'cartCount' => $cartCount
         ]);
     }
-
-
-    public function updateStatus(Request $request, $orderId)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,processed,completed,cancelled'
-        ]);
-
-        $order = Auth::user()->orders()->findOrFail($orderId);
-        $order->update(['status' => $request->status]);
-
-        return response()->json(['success' => true]);
-    }
 }

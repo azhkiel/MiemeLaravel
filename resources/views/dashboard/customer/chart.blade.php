@@ -82,76 +82,180 @@
             </div>
             @endif
         </div>
-        
-        <!-- Order Summary -->
-@if($items->isNotEmpty())
-    <div class="lg:w-1/3">
-        <div class="bg-white p-6 rounded-2xl shadow-sm sticky top-6 transition-all duration-300 hover:shadow-md animate-fade-in-up delay-100">
-            <h2 class="text-xl font-bold mb-6 text-gray-800">Ringkasan Pesanan</h2>
-            <div class="space-y-4">
-                <div class="flex justify-between">
-                    <p class="text-gray-600">Subtotal (<span id="summary-quantity">{{ $totalItems }}</span> item)</p>
-                    <p class="font-medium">Rp <span id="summary-subtotal">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
-                </div>
-                
-                <div class="border-t border-gray-200 my-2"></div>
-                
-                <div class="flex justify-between font-bold text-lg">
-                    <p class="text-gray-800">Total</p>
-                    <p class="text-blue-600">Rp <span id="summary-total">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
-                </div>
-            </div>
-            
-            <form method="POST" action="{{ route('customer.chart.checkout') }}">
-                @csrf
-                
-                <div class="mt-4">
-                    <label for="type_pesanan" class="block text-gray-600">Pilih Tipe Pesanan:</label>
-                    <select name="type_pesanan" id="type_pesanan" class="w-full p-2 border border-gray-300 rounded-md">
-                        <option value="takeaway" selected>Takeaway</option>
-                        <option value="dine_in">Dine In</option>
-                    </select>
+        @if($items->isNotEmpty())
+        <div class="lg:w-1/3">
+            <div class="bg-white p-6 rounded-2xl shadow-sm sticky top-6 transition-all duration-300 hover:shadow-md animate-fade-in-up delay-100">
+                <h2 class="text-xl font-bold mb-6 text-gray-800">Ringkasan Pesanan</h2>
+                <div class="space-y-4">
+                    <div class="flex justify-between">
+                        <p class="text-gray-600">Subtotal (<span id="summary-quantity">{{ $totalItems }}</span> item)</p>
+                        <p class="font-medium">Rp <span id="summary-subtotal">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
+                    </div>
+                    <div class="border-t border-gray-200 my-2"></div>
+                    <div class="flex justify-between font-bold text-lg">
+                        <p class="text-gray-800">Total</p>
+                        <p class="text-blue-600">Rp <span id="summary-total">{{ number_format($subtotal, 0, ',', '.') }}</span></p>
+                    </div>
                 </div>
 
-                <div id="meja_select" class="mt-4 hidden">
-                    <label for="meja_id" class="block text-gray-600">Pilih Meja:</label>
-                    <select name="meja_id" id="meja_id" class="w-full p-2 border border-gray-300 rounded-md">
-                        @foreach(\App\Models\Meja::where('ketersediaan', 'available')->get() as $meja)
-                            <option value="{{ $meja->id }}">{{ $meja->nomor_meja }} - Kapasitas: {{ $meja->kapasitas }}</option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <button type="submit" 
+                <div x-data="{
+                    openTypePesanan: false,
+                    openMejaModal: false,
+                    selectedMeja: null,
+                    
+                    // Submit untuk takeaway langsung
+                    submitTakeaway() {
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route('customer.chart.checkout') }}';
+                        
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+                        form.appendChild(csrf);
+                        
+                        const type = document.createElement('input');
+                        type.type = 'hidden';
+                        type.name = 'type_pesanan';
+                        type.value = 'takeaway';
+                        form.appendChild(type);
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                    },
+                    
+                    // Submit untuk dine in dengan meja
+                    submitDineIn() {
+                        if (!this.selectedMeja) {
+                            alert('Silakan pilih meja terlebih dahulu');
+                            return;
+                        }
+                        
+                        const form = document.createElement('form');
+                        form.method = 'POST';
+                        form.action = '{{ route('customer.chart.checkout') }}';
+                        
+                        const csrf = document.createElement('input');
+                        csrf.type = 'hidden';
+                        csrf.name = '_token';
+                        csrf.value = '{{ csrf_token() }}';
+                        form.appendChild(csrf);
+                        
+                        const type = document.createElement('input');
+                        type.type = 'hidden';
+                        type.name = 'type_pesanan';
+                        type.value = 'dine_in';
+                        form.appendChild(type);
+                        
+                        const meja = document.createElement('input');
+                        meja.type = 'hidden';
+                        meja.name = 'meja_id';
+                        meja.value = this.selectedMeja;
+                        form.appendChild(meja);
+                        
+                        document.body.appendChild(form);
+                        form.submit();
+                    }
+                }">
+                    <!-- Checkout Button -->
+                    <button type="button"
+                        x-on:click="openTypePesanan = true"
                         class="w-full mt-6 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white py-3 rounded-lg font-semibold transition-all duration-300 shadow-md hover:shadow-lg transform hover:-translate-y-1 flex items-center justify-center">
-                    <i class="fas fa-credit-card mr-2"></i>
-                    Checkout Sekarang
-                </button>
-            </form>
-            
-            <div class="mt-4 text-center">
-                <p class="text-sm text-gray-500">Dengan melanjutkan, Anda menyetujui Syarat & Ketentuan kami</p>
+                        <i class="fas fa-credit-card mr-2"></i>
+                        Checkout Sekarang
+                    </button>
+                    
+                    <!-- Type Pesanan Modal -->
+                    <div x-show="openTypePesanan" x-cloak
+                        class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50"
+                        x-transition>
+                        <div class="bg-white p-8 rounded-lg w-full max-w-md mx-4">
+                            <h3 class="text-xl font-semibold mb-6 text-center">Pilih Tipe Pesanan</h3>
+                            <div class="flex flex-col sm:flex-row gap-4 justify-center items-center mb-8">
+                                <button type="button"
+                                    x-on:click="openTypePesanan = false; submitTakeaway();"
+                                    class="flex-1 px-6 py-3 rounded-lg bg-blue-600 text-white font-semibold shadow hover:bg-blue-700 transition">
+                                    Takeaway
+                                </button>
+                                <button type="button"
+                                    x-on:click="openTypePesanan = false; openMejaModal = true;"
+                                    class="flex-1 px-6 py-3 rounded-lg bg-green-600 text-white font-semibold shadow hover:bg-green-700 transition">
+                                    Dine In
+                                </button>
+                            </div>
+                            <button type="button"
+                                x-on:click="openTypePesanan = false"
+                                class="w-full px-6 py-2 bg-gray-400 text-white rounded-lg">
+                                Batal
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Meja Modal -->
+                    <div x-show="openMejaModal" x-cloak
+                        class="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50 z-50"
+                        x-transition>
+                        <div class="bg-white p-8 rounded-lg w-full max-w-lg mx-4">
+                            <h3 class="text-xl font-semibold mb-4">Pilih Meja (Dine-in)</h3>
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4 mb-6">
+                                @foreach(\App\Models\Meja::where('ketersediaan', 'available')->get() as $meja)
+                                    <button type="button"
+                                            :class="selectedMeja === {{ $meja->id }} ? 'bg-blue-600 text-white border-blue-600' : 'bg-gray-100 text-gray-700 border-gray-300'"
+                                            x-on:click="selectedMeja = {{ $meja->id }}"
+                                            class="meja-option border p-4 rounded-md w-full text-center font-semibold transition-all duration-200">
+                                        <div>{{ $meja->nomor_meja }}</div>
+                                        <div class="text-sm text-gray-600">Kapasitas: {{ $meja->kapasitas }}</div> <!-- Menampilkan kapasitas meja -->
+                                    </button>
+                                @endforeach
+                            </div>
+                            <div class="flex justify-end space-x-3">
+                                <button type="button"
+                                        x-on:click="openMejaModal = false; selectedMeja = null;"
+                                        class="px-6 py-2 bg-gray-500 text-white rounded-lg">
+                                    Batal
+                                </button>
+                                <button type="button"
+                                        x-bind:class="selectedMeja ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-400 cursor-not-allowed'"
+                                        :disabled="!selectedMeja"
+                                        x-on:click="openMejaModal = false; submitDineIn();"
+                                        class="px-6 py-2 text-white rounded-lg">
+                                    Lanjutkan
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-4 text-center">
+                    <p class="text-sm text-gray-500">Dengan melanjutkan, Anda menyetujui Syarat & Ketentuan kami</p>
+                </div>
             </div>
         </div>
-    </div>
-@endif
-
+        @endif
     </div>
 </div>
+@push('styles')
+<style>
+    .meja-option {
+        transition: background-color 0.3s ease;
+    }
+
+    .meja-option:hover {
+        background-color: #4CAF50;
+        color: white;
+    }
+
+    .meja-option.selected {
+        background-color: #2196F3;
+        color: white;
+    }
+</style>
+@endpush
 
 @push('scripts')
+<script src="//unpkg.com/alpinejs" defer></script>
 <script>
-    document.getElementById('type_pesanan').addEventListener('change', function() {
-    var typePesanan = this.value;
-    var mejaSelect = document.getElementById('meja_select');
-    
-    if (typePesanan === 'dine_in') {
-        mejaSelect.style.display = 'block';
-    } else {
-        mejaSelect.style.display = 'none';
-    }
-});
-
     function updateQuantity(action, id) {
         // Add loading animation
         const quantityElement = document.getElementById(`quantity-${id}`);

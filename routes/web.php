@@ -9,8 +9,10 @@ use App\Http\Controllers\LandingController;
 use App\Http\Controllers\Customer\ChartController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\DashboardController;
+use App\Http\Controllers\Customer\MejaController;
 use App\Http\Controllers\AttendanceController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/',[LandingController::class, 'index'])->name('index');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -18,21 +20,18 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
-Route::get('/owner/dashboard', fn() => 'Admin Dashboard')->middleware('auth')->name('admin.dashboard');
-Route::get('/admin/dashboard', fn() => 'Owner Dashboard')->middleware('auth')->name('owner.dashboard');
+// Route::get('/owner/dashboard', fn() => 'Admin Dashboard')->middleware('auth')->name('admin.dashboard');
+// Route::get('/admin/dashboard', fn() => 'Owner Dashboard')->middleware('auth')->name('owner.dashboard');
 
 
 Route::middleware([islogin::class.':admin'])->group(function () {
-    Route::get('/admin/dashboard', function () {
-        return view('admin.dashboard');
-    });
+    Route::get('admin/dashboard', function () { return view('dashboard.admin.dashboard');})->name('admin.dashboard');
+    Route::get('admin/order',[AdminController::class, 'index'])->name('admin.order');
+    Route::get('orders/{orderId}/status', [AdminController::class, 'show'])->name('order.status');
+    Route::post('orders/{orderId}/status/update', [AdminController::class, 'update'])->name('order.status.update');
+
 });
 
-// Route::middleware([islogin::class.':customer'])->group(function () {
-//     Route::get('/dashboard', function () {
-//         return view('dashboard.customer.dashboard');
-//     })->name('customer.dashboard');
-// });
 
 Route::middleware([islogin::class.':customer'])->prefix('customer')->name('customer.')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
@@ -55,7 +54,7 @@ Route::middleware([islogin::class.':customer'])->prefix('customer')->name('custo
 
 });
 // atau multi-role sekaligus:
-Route::middleware([islogin::class.':admin,owner'])->group(function () {
+Route::middleware([islogin::class.':owner'])->group(function () {
     Route::get('/owner/dashboard', function () { return view('dashboard.owner.dashboard');})->name('owner.dashboard');
     Route::get('/menu',[MenuController::class, 'index'])->name('menu.index');
     Route::post('/menu',[MenuController::class, 'store'])->name('menu.simpan');
@@ -72,6 +71,9 @@ Route::middleware([islogin::class.':staff'])->prefix('staff')->name('staff.')->g
     // Show the attendance form
     Route::get('/attendance', [AttendanceController::class, 'showAttendanceForm'])->name('dashboard');
     Route::post('/attendance', [AttendanceController::class, 'storeAttendance'])->name('attendance.store');
+    Route::post('/meja/{id}/make-available', [MejaController::class, 'makeAvailable'])->name('meja.makeAvailable');
+    Route::get('/attendance', [AttendanceController::class, 'showAttendanceForm'])->name('dashboard');
+    Route::post('/attendance', [AttendanceController::class, 'storeAttendance'])->name('attendance.store');
+    Route::post('/attendance/checkout', [AttendanceController::class, 'checkoutAttendance'])->name('attendance.checkout');
 });
 
-Route::get('/logout', [AuthController::class, 'logout'])->name('logout');

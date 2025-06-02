@@ -213,4 +213,42 @@
     @endif
     @endforeach
 </main>
+@push('scripts')
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('notification', () => ({
+                show: false,
+                message: '',
+                type: 'success',
+                
+                init() {
+                    window.Echo.private(`user.${this.userId}`)
+                        .listen('OrderStatusUpdated', (e) => {
+                            this.showNotification(`Status pesanan #${e.orderId} diperbarui ke ${e.status}`, 'success');
+                        });
+                },
+                
+                showNotification(message, type = 'success') {
+                    this.message = message;
+                    this.type = type;
+                    this.show = true;
+                    
+                    setTimeout(() => {
+                        this.show = false;
+                    }, 3000);
+                }
+            }));
+        });
+        
+        // Live update cart count
+        function updateCartCount(count) {
+            const elements = document.querySelectorAll('.cart-count');
+            elements.forEach(el => {
+                el.textContent = count;
+                el.classList.add('animate-pulse');
+                setTimeout(() => el.classList.remove('animate-pulse'), 1000);
+            });
+        }
+    </script>
+@endpush
 @endsection

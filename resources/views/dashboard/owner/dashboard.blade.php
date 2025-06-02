@@ -1,4 +1,4 @@
-@extends('layout.own')
+@extends('layout.owner')
 
 @section('title', 'Dashboard Owner')
 

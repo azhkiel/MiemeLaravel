@@ -18,7 +18,7 @@
     @stack('styles')
 </head>
 <body class="h-full" x-data="{ sidebarOpen: window.innerWidth >= 768 }">
-    <x-sidebarOWN></x-sidebarOWN>
+    <x-sidebarAdmin></x-sidebarAdmin>
     <div class="md:ml-64 transition-all duration-300">
         @yield('content')
     </div>

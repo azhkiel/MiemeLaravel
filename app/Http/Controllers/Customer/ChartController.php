@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Customer;
 use App\Http\Controllers\Controller;
 use App\Models\Chart;
 use App\Models\Menu;
+use App\Models\Meja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -13,6 +14,7 @@ class ChartController extends Controller
     public function index()
     {
         $items = Auth::user()->charts()->with('menu')->get();
+        $mejas = Meja::where('ketersediaan', 'available')->get();
         $totalItems = $items->sum('quantity');
         $subtotal = $items->sum(function ($item) {
             return $item->quantity * $item->menu->harga;
@@ -21,7 +23,8 @@ class ChartController extends Controller
         return view('dashboard.customer.chart', [
             'items' => $items,
             'totalItems' => $totalItems,
-            'subtotal' => $subtotal
+            'subtotal' => $subtotal,
+            'mejas' => $mejas
         ]);
     }
 
@@ -98,57 +101,57 @@ class ChartController extends Controller
         ]);
     }
 
-public function checkout(Request $request)
-{
-    $items = Auth::user()->charts()->with('menu')->get();
+    public function checkout(Request $request)
+    {
+        $items = Auth::user()->charts()->with('menu')->get();
 
-    if ($items->isEmpty()) {
-        return redirect()->back()->with('error', 'Keranjang belanja kosong');
-    }
+        if ($items->isEmpty()) {
+            return redirect()->back()->with('error', 'Keranjang belanja kosong');
+        }
 
-    // Validasi pilihan dine_in atau takeaway
-    $request->validate([
-        'type_pesanan' => 'required|in:dine_in,takeaway',
-        'meja_id' => 'required_if:type_pesanan,dine_in|exists:mejas,id'
-    ]);
-
-    $typePesanan = $request->input('type_pesanan');
-    $mejaId = null;
-
-    if ($typePesanan === 'dine_in') {
-        $mejaId = $request->input('meja_id');
-        
-        // Tandai meja sebagai "reserved"
-        $meja = \App\Models\Meja::find($mejaId);
-        $meja->update(['ketersediaan' => 'reserved']);
-    }
-
-    // Hitung subtotal
-    $subtotal = $items->sum(function ($item) {
-        return $item->quantity * $item->menu->harga;
-    });
-
-    // Buat order
-    $order = Auth::user()->orders()->create([
-        'total_price' => $subtotal,
-        'type_pesanan' => $typePesanan,
-        'meja_id' => $mejaId
-    ]);
-
-    // Simpan detail pesanan
-    foreach ($items as $item) {
-        $order->orderDetails()->create([
-            'kode_menu' => $item->kode_menu,
-            'quantity' => $item->quantity,
-            'price' => $item->menu->harga
+        // Validasi pilihan dine_in atau takeaway
+        $request->validate([
+            'type_pesanan' => 'required|in:dine_in,takeaway',
+            'meja_id' => 'required_if:type_pesanan,dine_in|exists:mejas,id'
         ]);
+
+        $typePesanan = $request->input('type_pesanan');
+        $mejaId = null;
+
+        if ($typePesanan === 'dine_in') {
+            $mejaId = $request->input('meja_id');
+            
+            // Tandai meja sebagai "reserved"
+            $meja = Meja::find($mejaId);
+            $meja->update(['ketersediaan' => 'reserved']);
+        }
+
+        // Hitung subtotal
+        $subtotal = $items->sum(function ($item) {
+            return $item->quantity * $item->menu->harga;
+        });
+
+        // Buat order
+        $order = Auth::user()->orders()->create([
+            'total_price' => $subtotal,
+            'type_pesanan' => $typePesanan,
+            'meja_id' => $mejaId
+        ]);
+
+        // Simpan detail pesanan
+        foreach ($items as $item) {
+            $order->orderDetails()->create([
+                'kode_menu' => $item->kode_menu,
+                'quantity' => $item->quantity,
+                'price' => $item->menu->harga
+            ]);
+        }
+
+        // Kosongkan keranjang belanja
+        Auth::user()->charts()->delete();
+
+        return redirect()->route('customer.orders')->with('success', 'Pesanan berhasil dibuat');
     }
-
-    // Kosongkan keranjang belanja
-    Auth::user()->charts()->delete();
-
-    return redirect()->route('customer.orders')->with('success', 'Pesanan berhasil dibuat');
-}
 
     public function clear()
     {

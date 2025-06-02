@@ -1,4 +1,4 @@
-@extends('layout.own')
+@extends('layout.owner')
 
 @section('title', 'Menu')
 <!-- Letakkan notifikasi di bagian atas konten -->
