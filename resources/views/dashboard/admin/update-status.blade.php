@@ -12,12 +12,12 @@
                     Update Status Pesanan #{{ $order->id }}
                 </span>
             </h1>
-            <div class="flex items-center space-x-4">
-                <a href="{{ route('admin.dashboard') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
-                    <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:-translate-x-1"></i>
-                    <span>Kembali ke dashboard</span>
-                </a>
-            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <a href="{{ route('admin.dashboard') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:-translate-x-1"></i>
+                <span>Kembali ke dashboard</span>
+            </a>
         </div>
     </div>
 </header>

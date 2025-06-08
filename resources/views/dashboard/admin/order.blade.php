@@ -49,7 +49,6 @@
                                 </span>
                             </div>
                         </div>
-
                         <div class="border-t border-gray-200 pt-4">
                             <h4 class="font-medium text-gray-700 mb-3 flex items-center">
                                 <i class="fas fa-list-ul mr-2 text-blue-500"></i>

@@ -38,7 +38,7 @@ class AuthController extends Controller
 
     public function login(Request $request) {
         $credentials = $request->only('username', 'password');
-        $remember = $request->filled('remember'); // cek apakah checkbox "remember" dicentang
+        $remember = $request->filled('remember'); // cek apakah checkbox "remember" d   icentang
 
         if (Auth::attempt($credentials, $remember)) {
             $user = Auth::user();

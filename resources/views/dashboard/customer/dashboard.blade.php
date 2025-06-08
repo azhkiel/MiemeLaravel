@@ -6,6 +6,7 @@
 </header>
 
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+    <h1>{{ $user->fullname }}</h1>
     <!-- Promo Carousel -->
     <div class="relative rounded-2xl overflow-hidden shadow-lg mb-8 h-80">
         <div class="absolute inset-0 bg-gradient-to-r from-orange-500 to-amber-400 opacity-90"></div>

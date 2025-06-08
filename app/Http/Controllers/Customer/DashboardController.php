@@ -13,11 +13,14 @@ class DashboardController extends Controller
     {
         $menus = Menu::all()->groupBy('kategori');
         $cartCount = Auth::user()->charts()->sum('quantity');
+        $user = Auth::user();
 
         return view('dashboard.customer.dashboard', [
             'menus' => $menus,
-            'cartCount' => $cartCount
+            'cartCount' => $cartCount,
+            'user' => $user
         ]);
+        return view('components.sidebar',compact('user'));
     }
     public function menu()
     {
