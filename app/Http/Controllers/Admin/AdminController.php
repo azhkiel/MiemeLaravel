@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Order;
+use App\Models\Menu;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
@@ -18,6 +20,16 @@ class AdminController extends Controller
         return view('dashboard.admin.order', compact('orders'));
     }
 
+    public function menu()
+    {
+        $menus = Menu::all()->groupBy('kategori');
+        $cartCount = Auth::user()->charts()->sum('quantity');
+
+        return view('dashboard.admin.menu', [
+            'menus' => $menus,
+            'cartCount' => $cartCount
+        ]);
+    }
     // Tampilkan halaman untuk update status pesanan
     public function show($orderId)
     {

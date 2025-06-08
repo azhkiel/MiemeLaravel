@@ -1,4 +1,4 @@
-@extends('layout.dash')
+@extends('layout.admin')
 @section('title','Menu')
 @section('content')
 <main class="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 relative overflow-hidden">
@@ -207,7 +207,7 @@
                                               isAdding: false,
                                               addToCart() {
                                                   this.isAdding = true;
-                                                  fetch('{{ route('customer.chart.add') }}', {
+                                                  fetch('{{ route('admin.chart.add') }}', {
                                                       method: 'POST',
                                                       headers: {
                                                           'Content-Type': 'application/json',

@@ -121,44 +121,44 @@
 
     <!-- Scripts -->
     <script>
-        // Toast notification function
-        // function showToast(message, type = 'success') {
-        //     const toast = document.createElement('div');
-        //     toast.className = `
-        //         px-4 py-3 rounded-lg shadow-lg border transform transition-all duration-300 ease-in-out
-        //         ${type === 'success' ? 'bg-green-500 text-white border-green-600' : 
-        //           type === 'error' ? 'bg-red-500 text-white border-red-600' : 
-        //           type === 'warning' ? 'bg-yellow-500 text-white border-yellow-600' : 
-        //           'bg-blue-500 text-white border-blue-600'}
-        //         translate-x-full opacity-0
-        //     `;
-        //     toast.innerHTML = `
-        //         <div class="flex items-center">
-        //             <i class="fas ${type === 'success' ? 'fa-check-circle' : 
-        //                            type === 'error' ? 'fa-exclamation-circle' : 
-        //                            type === 'warning' ? 'fa-exclamation-triangle' : 
-        //                            'fa-info-circle'} mr-2"></i>
-        //             <span>${message}</span>
-        //             <button onclick="this.parentElement.parentElement.remove()" class="ml-4 hover:text-gray-200">
-        //                 <i class="fas fa-times"></i>
-        //             </button>
-        //         </div>
-        //     `;
+        Toast notification function
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `
+                px-4 py-3 rounded-lg shadow-lg border transform transition-all duration-300 ease-in-out
+                ${type === 'success' ? 'bg-green-500 text-white border-green-600' : 
+                  type === 'error' ? 'bg-red-500 text-white border-red-600' : 
+                  type === 'warning' ? 'bg-yellow-500 text-white border-yellow-600' : 
+                  'bg-blue-500 text-white border-blue-600'}
+                translate-x-full opacity-0
+            `;
+            toast.innerHTML = `
+                <div class="flex items-center">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 
+                                   type === 'error' ? 'fa-exclamation-circle' : 
+                                   type === 'warning' ? 'fa-exclamation-triangle' : 
+                                   'fa-info-circle'} mr-2"></i>
+                    <span>${message}</span>
+                    <button onclick="this.parentElement.parentElement.remove()" class="ml-4 hover:text-gray-200">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
             
-        //     document.getElementById('toast-container').appendChild(toast);
+            document.getElementById('toast-container').appendChild(toast);
             
-        //     // Animate in
-        //     setTimeout(() => {
-        //         toast.classList.remove('translate-x-full', 'opacity-0');
-        //         toast.classList.add('translate-x-0', 'opacity-100');
-        //     }, 100);
+            // Animate in
+            setTimeout(() => {
+                toast.classList.remove('translate-x-full', 'opacity-0');
+                toast.classList.add('translate-x-0', 'opacity-100');
+            }, 100);
             
-        //     // Auto remove after 5 seconds
-        //     setTimeout(() => {
-        //         toast.classList.add('translate-x-full', 'opacity-0');
-        //         setTimeout(() => toast.remove(), 300);
-        //     }, 5000);
-        // }
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                toast.classList.add('translate-x-full', 'opacity-0');
+                setTimeout(() => toast.remove(), 300);
+            }, 5000);
+        }
 
         Update cart count with animation
         function updateCartCount(count) {

@@ -1,20 +1,34 @@
 @extends('layout.admin')
-
-@section('title', 'Daftar Pesanan')
-
+@section('title','Dashboard - Pesanan Saya')
 @section('content')
 <header class="bg-white shadow-sm sticky top-0 z-10 animate-fade-down animate-duration-300">
     <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+        <!-- Judul Halaman -->
         <div class="flex items-center space-x-3">
             <h1 class="text-xl font-bold text-gray-800 flex items-center">
                 <i class="fas fa-history text-blue-500 mr-2"></i>
                 <span class="bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Daftar Pesanan Pending
+                    Riwayat Pesanan
                 </span>
             </h1>
         </div>
 
+        <!-- Navigasi Kanan -->
+        <div class="flex items-center space-x-4">
+            <!-- Link ke Keranjang -->
+            <a href="{{ route('admin.chart') }}" class="relative p-2 rounded-full hover:bg-gray-100 transition-colors duration-200 group">
+                <i class="fas fa-shopping-cart text-gray-600 group-hover:text-blue-600 transition-colors"></i>
+                <span class="cart-count absolute -top-1 -right-1 bg-red-500 text-white text-xs px-1.5 py-0.5 rounded-full flex items-center justify-center min-w-[20px] h-5 transform scale-0 group-hover:scale-100 transition-transform duration-200 {{ $cartCount > 0 ? 'scale-100' : 'scale-0' }}">
+                    {{ $cartCount }}
+                </span>
+            </a>
 
+            <!-- Tombol Kembali -->
+            <a href="{{ route('admin.dashboard') }}" class="bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                <i class="fas fa-arrow-left mr-2 transition-transform duration-300 group-hover:-translate-x-1"></i>
+                <span>Kembali ke Menu</span>
+            </a>
+        </div>
     </div>
 </header>
 
@@ -22,12 +36,17 @@
     @if($orders->isNotEmpty())
         <div class="grid grid-cols-1 gap-6">
             @foreach($orders as $order)
-                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 animate-fade-up animate-delay-{{ $loop->index * 50 }}">
+                <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-500 animate-fade-up animate-delay-{{ $loop->index * 50 }}"
+                     x-data="{ expanded: false }">
                     <div class="p-6">
-                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 cursor-pointer">
+                        <!-- Header Pesanan -->
+                        <div class="flex flex-col md:flex-row md:justify-between md:items-center mb-4 cursor-pointer"
+                             @click="expanded = !expanded">
                             <div class="mb-4 md:mb-0">
                                 <h3 class="text-lg font-bold text-gray-800 flex items-center">
                                     <span class="mr-2">Pesanan #{{ $order->id }}</span>
+                                    <i class="fas fa-chevron-down text-xs text-gray-400 transform transition-transform duration-300"
+                                       :class="{ 'rotate-180': expanded }"></i>
                                 </h3>
                                 <p class="text-sm text-gray-500 flex items-center mt-1">
                                     <i class="far fa-clock mr-1.5"></i>
@@ -44,12 +63,18 @@
                                     @elseif($order->status === 'completed') bg-gradient-to-r from-green-100 to-green-50 text-green-800 border border-green-200
                                     @elseif($order->status === 'cancelled') bg-gradient-to-r from-red-100 to-red-50 text-red-800 border border-red-200
                                     @endif"
-                                    data-status="{{ $order->status }}">
+                                    data-status="{{ $order->status }}"
+                                    data-order-id="{{ $order->id }}"
+                                    x-intersect="$el.classList.add('animate-rubber-band')">
                                     {{ ucfirst($order->status) }}
                                 </span>
                             </div>
                         </div>
-                        <div class="border-t border-gray-200 pt-4">
+
+                        <!-- Item Pesanan (Collapsible) -->
+                        <div class="border-t border-gray-200 pt-4 overflow-hidden transition-all duration-500 ease-in-out"
+                             x-ref="details"
+                             x-bind:style="expanded ? 'max-height: ' + $refs.details.scrollHeight + 'px' : 'max-height: 0px'">
                             <h4 class="font-medium text-gray-700 mb-3 flex items-center">
                                 <i class="fas fa-list-ul mr-2 text-blue-500"></i>
                                 Daftar Pesanan
@@ -57,7 +82,7 @@
                             
                             <div class="space-y-3">
                                 @foreach($order->orderDetails as $item)
-                                    <div class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-100">
+                                    <div class="flex justify-between items-center p-3 rounded-lg hover:bg-gray-50 transition-colors duration-200 border border-gray-100 animate-fade-in animate-delay-{{ $loop->index * 50 }}">
                                         <div class="flex items-center">
                                             <div class="w-10 h-10 rounded-md overflow-hidden mr-3">
                                                 <img src="{{ asset('storage/' . $item->menu->gambar) }}" 
@@ -79,25 +104,33 @@
                                 @endforeach
                             </div>
 
-                            <div class="flex justify-end space-x-3 mt-5">
-                                <a href="{{ route('order.status', $order->id) }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium px-4 py-2 rounded-lg border border-blue-200 hover:bg-blue-50 transition-all duration-300 flex items-center">
-                                    <i class="fas fa-edit mr-2"></i>
-                                    Update Status
-                                </a>
-                            </div>
+                            <!-- Aksi (jika status pending) -->
+                            @if($order->status === 'pending')
+                                <div class="flex justify-end space-x-3 mt-5 animate-fade-in">
+                                    <button class="text-sm text-red-600 hover:text-red-800 font-medium px-4 py-2 rounded-lg border border-red-200 hover:bg-red-50 transition-all duration-300 flex items-center transform hover:scale-105">
+                                        <i class="fas fa-times-circle mr-2"></i>
+                                        Batalkan Pesanan
+                                    </button>
+                                    <button class="text-sm bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-4 py-2 rounded-lg transition-all duration-300 flex items-center shadow-md hover:shadow-lg transform hover:scale-105">
+                                        <i class="fas fa-headset mr-2"></i>
+                                        Hubungi Kami
+                                    </button>
+                                </div>
+                            @endif
                         </div>
                     </div>
                 </div>
             @endforeach
         </div>
     @else
-        <div class="text-center py-16">
-            <div class="inline-block p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full mb-6">
+        <!-- Tampilan jika tidak ada pesanan -->
+        <div class="text-center py-16 animate-fade-in">
+            <div class="inline-block p-6 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-full mb-6 animate-bounce animate-duration-2000 animate-iteration-count-3">
                 <i class="fas fa-shopping-cart text-5xl text-blue-400"></i>
             </div>
-            <h3 class="text-xl font-medium text-gray-800 mb-3">Belum ada pesanan pending</h3>
+            <h3 class="text-xl font-medium text-gray-800 mb-3">Belum ada riwayat pesanan</h3>
             <p class="text-gray-500 max-w-md mx-auto mb-8">
-                Pesanan pending akan muncul di sini setelah dipesan. Pastikan untuk memeriksa status pesanan.
+                Pesanan Anda akan muncul di sini setelah melakukan pembelian. Mari mulai berbelanja!
             </p>
             <a href="{{ route('admin.dashboard') }}" 
                class="inline-block bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-medium px-8 py-3 rounded-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
@@ -107,4 +140,30 @@
         </div>
     @endif
 </main>
+
+@push('scripts')
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        simulateStatusUpdates();
+        
+        // Initialize tooltips
+        tippy('[data-tippy-content]', {
+            animation: 'scale-subtle',
+            theme: 'light-border',
+            arrow: true,
+            duration: [200, 200]
+        });
+    });
+</script>
+
+<style>
+    @keyframes confetti {
+        0% { transform: translateY(0) rotate(0deg); }
+        100% { transform: translateY(100vh) translateX(var(--random-x)) rotate(var(--random-rotate))); }
+    }
+    .animate-confetti {
+        animation: confetti linear forwards;
+    }
+</style>
+@endpush
 @endsection

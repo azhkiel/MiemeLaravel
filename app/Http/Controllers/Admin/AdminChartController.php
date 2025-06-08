@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Customer;
+namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Chart;
@@ -9,7 +9,7 @@ use App\Models\Meja;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class ChartController extends Controller
+class AdminChartController extends Controller
 {
     public function index()
     {
@@ -20,7 +20,7 @@ class ChartController extends Controller
             return $item->quantity * $item->menu->harga;
         });
 
-        return view('dashboard.customer.chart', [
+        return view('dashboard.admin.chart', [
             'items' => $items,
             'totalItems' => $totalItems,
             'subtotal' => $subtotal,
@@ -112,12 +112,12 @@ class ChartController extends Controller
         // Validasi pilihan dine_in atau takeaway
         $request->validate([
             'type_pesanan' => 'required|in:dine_in,takeaway',
-            'meja_id' => 'required_if:type_pesanan,dine_in|exists:mejas,id'
+            'meja_id' => 'required_if:type_pesanan,dine_in|exists:mejas,id',
+            'customer_name' => 'required|string|max:255'
         ]);
-
         $typePesanan = $request->input('type_pesanan');
         $mejaId = null;
-
+        $customerName = $request->input('customer_name');
         if ($typePesanan === 'dine_in') {
             $mejaId = $request->input('meja_id');
             
@@ -136,7 +136,7 @@ class ChartController extends Controller
             'total_price' => $subtotal,
             'type_pesanan' => $typePesanan,
             'meja_id' => $mejaId,
-            'name_order' => Auth::user()->username
+            'name_order' => $customerName
         ]);
 
         // Simpan detail pesanan
@@ -151,7 +151,7 @@ class ChartController extends Controller
         // Kosongkan keranjang belanja
         Auth::user()->charts()->delete();
 
-        return redirect()->route('customer.orders')->with('success', 'Pesanan berhasil dibuat');
+        return redirect()->route('admin.orders')->with('success', 'Pesanan berhasil dibuat');
     }
 
     public function clear()

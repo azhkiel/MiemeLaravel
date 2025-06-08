@@ -10,6 +10,9 @@ use App\Http\Controllers\Customer\ChartController;
 use App\Http\Controllers\Customer\OrderController;
 use App\Http\Controllers\Customer\DashboardController;
 use App\Http\Controllers\Customer\MejaController;
+use App\Http\Controllers\Admin\AdminChartController;
+use App\Http\Controllers\Admin\AdminOrderController;
+use App\Http\Controllers\Admin\AdminMejaController;
 use App\Http\Controllers\Staff\AttendanceController;
 use App\Http\Controllers\Owner\UserController;
 use App\Http\Controllers\Admin\AdminController;
@@ -24,9 +27,24 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 Route::middleware([islogin::class.':admin'])->group(function () {
     Route::get('admin/dashboard', function () { return view('dashboard.admin.dashboard');})->name('admin.dashboard');
     Route::get('admin/order',[AdminController::class, 'index'])->name('admin.order');
+    Route::get('admin/dashboard/menu', [AdminController::class, 'menu'])->name('admin.menu');
     Route::get('orders/{orderId}/status', [AdminController::class, 'show'])->name('order.status');
     Route::post('orders/{orderId}/status/update', [AdminController::class, 'update'])->name('order.status.update');
 
+     // Chart routes
+    Route::prefix('chart')->group(function () {
+        Route::get('/', [AdminChartController::class, 'index'])->name('admin.chart');
+        Route::post('/add', [AdminChartController::class, 'addToCart'])->name('admin.chart.add');
+        Route::get('/update', [AdminChartController::class, 'updateQuantity'])->name('admin.chart.update');
+        Route::post('/checkout', [AdminChartController::class, 'checkout'])->name('admin.chart.checkout');
+        Route::delete('/clear', [AdminChartController::class, 'clear'])->name('admin.chart.clear');
+    });
+    
+    // Order routes
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [AdminOrderController::class, 'index'])->name('admin.orders');
+        Route::post('/{order}/update-status', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.update-status');
+    });
 });
 
 

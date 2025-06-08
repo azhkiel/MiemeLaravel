@@ -14,6 +14,7 @@ return new class extends Migration
     Schema::table('orders', function (Blueprint $table) {
         $table->enum('type_pesanan', ['dine_in', 'takeaway'])->default('takeaway');
         $table->foreignId('meja_id')->nullable()->constrained('mejas')->onDelete('set null');
+        $table->string('name_order')->nullable();
     });
 }
 

@@ -13,7 +13,8 @@ class Order extends Model
         'total_price',
         'status',
         'type_pesanan', 
-        'meja_id'
+        'meja_id',
+        'name_order'
     ];
 
     public function user(): BelongsTo

@@ -1,4 +1,4 @@
-@extends('layout.dash')
+@extends('layout.admin')
 @section('title','Dashboard - Keranjang Belanja')
 @section('content')
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 relative">
@@ -29,7 +29,7 @@
                 </div>
             </div>
             
-            <button onclick="window.location.href='{{ route('customer.dashboard') }}'" 
+            <button onclick="window.location.href='{{ route('admin.dashboard') }}'" 
                     class="group flex items-center px-6 py-3 bg-white/80 backdrop-blur-sm border-2 border-blue-200 text-blue-600 rounded-2xl hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700 transition-all duration-300 animate-fade-in-down delay-100 shadow-lg hover:shadow-xl transform hover:-translate-y-1">
                 <i class="fas fa-arrow-left mr-3 group-hover:-translate-x-1 transition-transform duration-300"></i>
                 <span class="font-semibold">Lanjutkan Belanja</span>
@@ -52,7 +52,7 @@
                         </div>
                         
                         @if($items->isNotEmpty())
-                        <form action="{{ route('customer.chart.clear') }}" method="POST" class="d-inline delete-form" id="clearCartForm">
+                        <form action="{{ route('admin.chart.clear') }}" method="POST" class="d-inline delete-form" id="clearCartForm">
                             @csrf
                             @method('DELETE')
                             <button type="button" onclick="confirmClearCart()" 
@@ -132,7 +132,7 @@
                         </div>
                         <h3 class="text-2xl font-bold text-gray-700 mb-4">Keranjang belanja kosong</h3>
                         <p class="text-gray-500 mb-8 text-lg">Tambahkan beberapa item menu untuk memulai</p>
-                        <button onclick="window.location.href='{{ route('customer.dashboard') }}'" 
+                        <button onclick="window.location.href='{{ route('admin.dashboard') }}'" 
                                 class="group px-8 py-4 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-2xl transition-all duration-300 shadow-xl hover:shadow-2xl transform hover:-translate-y-2 font-semibold text-lg">
                             <i class="fas fa-utensils mr-3 group-hover:animate-bounce"></i>
                             Lihat Menu
@@ -178,12 +178,18 @@
                         openTypePesanan: false,
                         openMejaModal: false,
                         selectedMeja: null,
+                        customerName: '',
                         
                         // Submit untuk takeaway langsung
                         submitTakeaway() {
+                            if (!this.customerName.trim()) {
+                                alert('Silakan masukkan nama customer terlebih dahulu');
+                                return;
+                            }
+                            
                             const form = document.createElement('form');
                             form.method = 'POST';
-                            form.action = '{{ route('customer.chart.checkout') }}';
+                            form.action = '{{ route('admin.chart.checkout') }}';
                             
                             const csrf = document.createElement('input');
                             csrf.type = 'hidden';
@@ -197,12 +203,23 @@
                             type.value = 'takeaway';
                             form.appendChild(type);
                             
+                            const name = document.createElement('input');
+                            name.type = 'hidden';
+                            name.name = 'customer_name';
+                            name.value = this.customerName;
+                            form.appendChild(name);
+                            
                             document.body.appendChild(form);
                             form.submit();
                         },
                         
                         // Submit untuk dine in dengan meja
                         submitDineIn() {
+                            if (!this.customerName.trim()) {
+                                alert('Silakan masukkan nama customer terlebih dahulu');
+                                return;
+                            }
+                            
                             if (!this.selectedMeja) {
                                 alert('Silakan pilih meja terlebih dahulu');
                                 return;
@@ -210,7 +227,7 @@
                             
                             const form = document.createElement('form');
                             form.method = 'POST';
-                            form.action = '{{ route('customer.chart.checkout') }}';
+                            form.action = '{{ route('admin.chart.checkout') }}';
                             
                             const csrf = document.createElement('input');
                             csrf.type = 'hidden';
@@ -224,6 +241,12 @@
                             type.value = 'dine_in';
                             form.appendChild(type);
                             
+                            const name = document.createElement('input');
+                            name.type = 'hidden';
+                            name.name = 'customer_name';
+                            name.value = this.customerName;
+                            form.appendChild(name);
+                            
                             const meja = document.createElement('input');
                             meja.type = 'hidden';
                             meja.name = 'meja_id';
@@ -234,9 +257,17 @@
                             form.submit();
                         }
                     }">
+                        <!-- Customer Name Input -->
+                        <div class="mb-6">
+                            <label for="customerName" class="block text-sm font-medium text-gray-700 mb-2">Nama Customer</label>
+                            <input type="text" id="customerName" x-model="customerName"
+                                   class="w-full px-4 py-3 rounded-xl border-2 border-blue-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 transition-all duration-300 shadow-sm"
+                                   placeholder="Masukkan nama customer" required>
+                        </div>
+
                         <!-- Enhanced Checkout Button -->
                         <button type="button"
-                            x-on:click="openTypePesanan = true"
+                            x-on:click="if(customerName.trim()) { openTypePesanan = true } else { alert('Silakan masukkan nama customer terlebih dahulu') }"
                             class="group w-full bg-gradient-to-r from-blue-600 via-blue-700 to-blue-800 hover:from-blue-700 hover:via-blue-800 hover:to-blue-900 text-white py-4 rounded-2xl font-bold text-lg transition-all duration-500 shadow-xl hover:shadow-2xl transform hover:-translate-y-2 flex items-center justify-center relative overflow-hidden">
                             <!-- Animated background -->
                             <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000"></div>
@@ -453,7 +484,7 @@
         const originalText = quantityElement.textContent;
         quantityElement.innerHTML = `<i class="fas fa-spinner fa-spin text-blue-500"></i>`;
         
-        fetch(`{{ route('customer.chart.update') }}?action=${action}&id=${id}`, {
+        fetch(`{{ route('admin.chart.update') }}?action=${action}&id=${id}`, {
             headers: {
                 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 'Accept': 'application/json'
