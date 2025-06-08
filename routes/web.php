@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\AdminMejaController;
 use App\Http\Controllers\Staff\AttendanceController;
 use App\Http\Controllers\Owner\UserController;
 use App\Http\Controllers\Admin\AdminController;
+use App\Http\Controllers\Owner\OwnerDashboardController;
 
 Route::get('/',[LandingController::class, 'index'])->name('index');
 Route::get('/register', [AuthController::class, 'showRegister'])->name('register');
@@ -70,7 +71,7 @@ Route::middleware([islogin::class.':customer'])->prefix('customer')->name('custo
 });
 // atau multi-role sekaligus:
 Route::middleware([islogin::class.':owner'])->group(function () {
-    Route::get('/owner/dashboard', function () { return view('dashboard.owner.dashboard');})->name('owner.dashboard');
+    Route::get('/owner/dashboard', [OwnerDashboardController::class, 'index'])->name('owner.dashboard');
     Route::get('/menu',[MenuController::class, 'index'])->name('menu.index');
     Route::post('/menu',[MenuController::class, 'store'])->name('menu.simpan');
     Route::get('/menu/{kodeMenu}/edit',[MenuController::class, 'edit'])->name('menu.edit');

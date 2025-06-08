@@ -18,10 +18,11 @@ class AdminOrderController extends Controller
 
         // Ambil jumlah item di keranjang belanja
         $cartCount = Auth::user()->charts()->sum('quantity');
-
+        $user = Auth::user();
         return view('dashboard.admin.orders', [
             'orders' => $orders,
-            'cartCount' => $cartCount
+            'cartCount' => $cartCount,
+            'users' => $user
         ]);
     }
 }

@@ -17,10 +17,14 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamp('attendance_date')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->enum('status', ['present', 'absent', 'late'])->default('present');
-            $table->string('image')->nullable();  // Define the image column
+            $table->string('image')->nullable();
+            $table->string('checkout_image')->nullable(); 
             $table->string('shift')->nullable();
             $table->time('attendance_time')->nullable();
-            $table->timestamps();  // Automatically adds created_at and updated_at columns
+            $table->time('checkout_time')->nullable();
+            $table->decimal('duration', 5, 2)->nullable();
+            $table->integer('salary')->nullable();    
+            $table->timestamps();      // Automatically adds created_at and updated_at columns
         });
         
     }
