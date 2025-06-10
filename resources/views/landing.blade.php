@@ -58,7 +58,7 @@
                             <div class="w-20 h-20 bg-white/20 rounded-2xl flex items-center justify-center mx-auto mb-4">
                                 <i class="fas fa-utensils text-3xl"><img src="{{ asset('assets/img/mieme/Logo Mentaly.png') }}" alt="logo"></i>
                             </div>
-                            <h3 class="text-2xl font-bold mb-2">Smart Ordering</h3>
+                            <h3 class="text-2xl font-bold mb-2">Order Mudah Dengan Mieme</h3>
                             <p class="text-blue-100">Pesan makanan dengan teknologi AI</p>
                         </div>
                     </div>
