@@ -6,7 +6,7 @@
 <div class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-blue-100 p-6" x-data="dashboardData()">
     <!-- Header -->
     <div class="mb-8 animate-fade-in">
-        <h1 class="text-4xl font-bold text-blue-900 mb-2">Dashboard Admin</h1>
+        <h1 class="text-4xl font-bold text-blue-900 mb-2">Dashboard Owner</h1>
         <p class="text-blue-600">Selamat datang kembali! Berikut ringkasan aktivitas hari ini.</p>
         <div class="flex items-center mt-4 text-sm text-blue-700">
             <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
